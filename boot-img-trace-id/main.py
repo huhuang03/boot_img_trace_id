@@ -3,17 +3,38 @@ import sys
 from pathlib import Path
 import subprocess
 import shutil
+import re
 
 _BOOT_EXTRA_FOLDER = "extracted"
 
 _GZIP_MAGIC = b'\x1f\x8b\x08\x00'
 
-_TRACE_PID = bytearray("TracerPid:\\t%d", "utf-8")
+_TRACE_PID = bytearray("TracerPid:\t%d", "utf-8")
 
 PACK_FOLDER = "pack"
 
+_KERNEL_PATCHED = "kernelimage_patched"
+
 def _find_pos(content, to_find_bytearray):
-    return -1
+    return content.find(to_find_bytearray)
+
+def _get_kernel_image_content_handly():
+    kernel_path = "kernel"
+    kernel_content = open(kernel_path, 'rb').read()
+    header_index = _find_pos(kernel_content, _GZIP_MAGIC)
+    if header_index <= 0:
+        print("cna't find gzip magic in pos")
+        return
+
+    kernel_content_gzip = kernel_content[header_index: ]
+
+    kernel_content_ungzip = ungzip(kernel_content_gzip)
+    # are you sure thant can simpley change `TraceId`??
+
+
+def _get_kernel_image_content():
+    # If you not use imjtool. you must do unzip yourself
+    return open('kernelimage', 'rb').read()
 
 def main():
     if len(sys.argv) < 2:
@@ -35,29 +56,25 @@ def main():
     shutil.copytree(_BOOT_EXTRA_FOLDER, PACK_FOLDER)
 
     os.chdir(_BOOT_EXTRA_FOLDER)
-    kernel_path = "kernel"
-    kernel_content = open(kernel_path, 'rb').read()
-    header_index = _find_pos(kernel_content, _GZIP_MAGIC)
-    if header_index <= 0:
-        print("cna't find gzip magic in pos")
-        return
-
-    kernel_content_gzip = kernel_content[header_index: ]
-
-    kernel_content_ungzip = ungzip(kernel_content_gzip)
-    # are you sure thant can simpley change `TraceId`??
-    tracePid_index = _find_pos(kernel_content_ungzip, _TRACE_PID)
+    kernel_image_content = _get_kernel_image_content()
+    tracePid_index = _find_pos(kernel_image_content, _TRACE_PID)
     if tracePid_index <=0:
-        print("can't find tracePid index in gzip unziped")
+        print("can't find tracePid in kernelimage")
         return
+    print("tracePid index: ", tracePid_index)
 
-    kernel_content_ungzip[tracePid_index: tracePid_index + len(_TRACE_PID)] = bytearray("TracerPid:\\t00")
-    kernel_modified_gziped = gzip(kernel_content_ungzip)
+    kernel_image_content = kernel_image_content.replace(_TRACE_PID, bytearray("TracerPid:\t00", "utf-8"))
+    assert _find_pos(kernel_image_content, _TRACE_PID) < 0, "Why after repalce, can still find??"
+    # write to modfied
+    open(_KERNEL_PATCHED, 'wb').write(kernel_image_content)
 
-    kernel_content[header_index:] = kernel_modified_gziped
+    imgs = [_KERNEL_PATCHED, "ramdisk", "kernel", "devicetree.dtb"] 
+    subprocess.run(["imjtool.MacOS", "make", "boot_patched.img"] + imgs)
 
-    write_kernel_content_to_pack_folder()
-    pack_to_pakc_folder()
+    # kernel_content[header_index:] = kernel_modified_gziped
+
+    # write_kernel_content_to_pack_folder()
+    # pack_to_pakc_folder()
     
 
 if __name__ == "__main__":
