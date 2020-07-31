@@ -4,8 +4,13 @@
 
 其中的gzip方法，imjtool已经帮我们做了，所以我们要做的比较少。
 
+* TODOS
+- why imjtool make can't build the right img
+
 * Note
 test command: ~python3 main.py ../test/boot.img~
+make test command: ~imjtool.MacOS make boot_patched.img kernelimage ramdisk~
+make test command: ~imjtool.MacOS make boot_patched.img kernelimage ramdisk devicetree.dtb~
 
 #+BEGIN_SRC shell
 or:     imjtool.MacOS make _img_name_ _kernel_ _ramdisk_ [....]
