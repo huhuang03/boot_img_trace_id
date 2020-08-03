@@ -58,6 +58,7 @@ def main():
     os.chdir("runtime")
     shutil.rmtree(_BOOT_EXTRA_FOLDER, ignore_errors=True)
     shutil.rmtree(PACK_FOLDER, ignore_errors=True)
+    shutil.rmtree('out', ignore_errors=True)
 
     processor = BootImgProcessor()
     processor.process(boot_img_path)
