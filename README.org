@@ -2,26 +2,9 @@
 
 将过程自动化，因为可能需要尝试多次，手动重复很繁琐。
 
-其中的gzip方法，imjtool已经帮我们做了，所以我们要做的比较少。
+程序使用了[[mkbootimg][https://github.com/osm0sis/mkbootimg.git]]来作为解包、打包工具
 
-* TODOS
-- why imjtool make can't build the right img
+test/boot.img是我从我自己的手机上拉去出来的，测试通过。
 
-* Note
+* Some Note
 test command: ~python3 main.py ../test/boot.img~
-make test command: ~imjtool.MacOS make boot_patched.img kernelimage ramdisk~
-make test command: ~imjtool.MacOS make boot_patched.img kernelimage ramdisk devicetree.dtb~
-
-#+BEGIN_SRC shell
-or:     imjtool.MacOS make _img_name_ _kernel_ _ramdisk_ [....]
-        Make _img_name by combining kernel and ramdisk and creating header
-       [cmdline='args to kernel'] is an optional parameter specifying the kernel command line
-       [addr=0x.....] is an optional base address to load the kernel into
-
-Supported image formats:
-        ANDROID! (bootimg), BOOTLDR!, Sparse images,
-        system.transfer.dat (blocks), Huawei OTA, QCom FBPK,
-        EFI SCAP, UEFI, TOC (Samsung), DTBO, super.img
-        (Compiled with LZMA support)
-        (Compiled with Brotli support - https://github.com/google/brotli, MIT License)
-#+END_SRC
