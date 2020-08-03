@@ -6,5 +6,7 @@
 
 test/boot.img是我从我自己的手机上拉去出来的，测试通过。
 
+Only test on mac. Linux may also ok, but windows should not. Because some command ~gzip gunzip mkbootimg unpackbootimg~ may not work on windows.
+
 * Some Note
 test command: ~python3 main.py ../test/boot.img~
