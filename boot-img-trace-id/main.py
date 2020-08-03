@@ -6,6 +6,7 @@ import shutil
 import re
 import kernel
 from kernel import Kernel
+from boot_img_prosessor import BootImgProcessor
 
 _BOOT_EXTRA_FOLDER = "extracted"
 
@@ -58,12 +59,15 @@ def main():
     shutil.rmtree(_BOOT_EXTRA_FOLDER, ignore_errors=True)
     shutil.rmtree(PACK_FOLDER, ignore_errors=True)
 
-    subprocess.run(["imjtool.MacOS", boot_img_path, "extract"])
-    # shutil.copytree(_BOOT_EXTRA_FOLDER, PACK_FOLDER)
+    processor = BootImgProcessor()
+    processor.process(boot_img_path)
 
-    os.chdir(_BOOT_EXTRA_FOLDER)
-    kernel = Kernel("kernel")
-    kernel.process()
+    # subprocess.run(["imjtool.MacOS", boot_img_path, "extract"])
+    # # shutil.copytree(_BOOT_EXTRA_FOLDER, PACK_FOLDER)
+
+    # os.chdir(_BOOT_EXTRA_FOLDER)
+    # kernel = Kernel("kernel")
+    # kernel.process()
     # kernel_image_content = _get_kernel_image_content()
     # tracePid_index = _find_pos(kernel_image_content, _TRACE_PID)
     # if tracePid_index <=0:
